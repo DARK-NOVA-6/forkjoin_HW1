@@ -1,3 +1,4 @@
+import java.util.HashMap;
 import java.util.concurrent.RecursiveTask;
 
 
@@ -10,28 +11,53 @@ However, besides being a dumb way to compute Fibonacci functions (there is a sim
 
 public class Fibonacci extends RecursiveTask<Integer> {
     final int n;
-    public Fibonacci(int n) { this.n = n; }
+    private final HashMap<Integer,Integer> memo;
+    public Fibonacci(int n) {
+        this.n = n;
+        this.memo = new HashMap<>();
+    }
 
     public Integer compute() {
+        if (n <= 1)
+            return n;
 
+        // Check if we have already computed the result for this n
+        if (memo.containsKey(n)) {
+            return memo.get(n);
+        }
+
+        int result;
         if(n > 20) {
-            if (n <= 1)
-                return n;
             Fibonacci f1 = new Fibonacci(n - 1);
             f1.fork();
             Fibonacci f2 = new Fibonacci(n - 2);
-            return f2.compute() + f1.join();
+            result = f2.compute() + f1.join();
         }else{
-            return computeSeq();
+            result = computeSeq();
         }
+        // Store the result in the memo for future use
+        memo.put(n, result);
+
+        return result;
     }
 
     public Integer computeSeq() {
         if (n <= 1)
             return n;
+
+        // Check if we have already computed the result for this n
+        if (memo.containsKey(n)) {
+            return memo.get(n);
+        }
+
         Fibonacci f1 = new Fibonacci(n - 1);
         Fibonacci f2 = new Fibonacci(n - 2);
-        return f2.computeSeq() + f1.computeSeq();
+
+        int result = f2.computeSeq() + f1.computeSeq();
+        // Store the result in the memo for future use
+        memo.put(n, result);
+
+        return result;
     }
 
 }
